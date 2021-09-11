@@ -16,17 +16,20 @@ contract NFTOTC {
 
     OTC[] public otcInfo;
     bool paused;
+    uint256 fee;
 
     constructor() {
         paused = false;
+        fee = 0;
     }
 
-    function createOTC(address nft1, address nft2, address counterParty1, address counterParty2, uint8 nftId1, uint8 nftId2, uint256 expires) public {
+    function createOTC(address nft1, address nft2, address counterParty1, address counterParty2, uint8 nftId1, uint8 nftId2, uint256 expires) external payable {
         require(paused == false, "Contract is Paused");
+        require(msg.value >= fee, "less than the platform fee");
         otcInfo.push(OTC({nft1: nft1, nft2: nft2, counterParty1:counterParty1, counterParty2:counterParty2, nftId1: nftId1, nftId2: nftId2, expires: (expires+block.timestamp), executed: false}));
     }
 
-    function execOTC(uint256 _otcId) public{
+    function execOTC(uint256 _otcId) external {
         OTC storage otc = otcInfo[_otcId];
         require(block.timestamp <= otc.expires, "OTC Expired");
         require(otc.executed == false, "OTC is already executed");
@@ -36,17 +39,21 @@ contract NFTOTC {
         otc.executed = true;
     }
 
-    function cancelOTC(uint256 _otcId) public {
+    function cancelOTC(uint256 _otcId) external {
         OTC storage otc = otcInfo[_otcId];
         require(msg.sender == otc.counterParty1, "you are not the counterParty");
         otc.executed = true;
     }
 
-    function pause() public {
+    function pause() external {
         paused = true;
     }
 
-    function unpause() public {
+    function unpause() external {
         paused = false;
+    }
+
+    function changeFee(uint256 _fee) external {
+        fee = _fee;
     }
 }
