@@ -45,4 +45,8 @@ contract NFTOTC {
     function pause() public {
         paused = true;
     }
+
+    function unpause() public {
+        paused = false;
+    }
 }
