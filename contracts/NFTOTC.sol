@@ -1,8 +1,9 @@
 pragma solidity ^0.8.0;
 
 import './@openzeppelin/contracts/token/ERC721/ERC721.sol';
+import './@openzeppelin/contracts/access/Ownable.sol';
 
-contract NFTOTC {
+contract NFTOTC is Ownable {
     struct OTC {
         address nft1;
         address nft2;
@@ -55,5 +56,9 @@ contract NFTOTC {
 
     function changeFee(uint256 _fee) external {
         fee = _fee;
+    }
+
+    function withdrawTip(uint256 _tip, address payable receipt) external onlyOwner {
+        receipt.transfer(_tip);
     }
 }
